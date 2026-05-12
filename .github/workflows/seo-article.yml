@@ -220,4 +220,29 @@ jobs:
           git commit -m "SEO: add article $SLUG + update blog index + sitemap"
           git push
 
-      # Cloudflare Pages auto-deploys on push via GitHub integration — no wrangler step needed
+      - name: Deploy to Cloudflare Pages
+        if: steps.keyword.outputs.slug != ''
+        env:
+          WRANGLER_REFRESH_TOKEN: ${{ secrets.WRANGLER_REFRESH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # Exchange refresh token for fresh access token
+          RESPONSE=$(curl -s -X POST "https://dash.cloudflare.com/oauth2/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "grant_type=refresh_token&refresh_token=$WRANGLER_REFRESH_TOKEN&client_id=54d11594-84e4-41aa-b438-e81b8fa78ee7")
+
+          ACCESS_TOKEN=$(echo "$RESPONSE" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['access_token'])")
+          NEW_REFRESH=$(echo "$RESPONSE" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['refresh_token'])")
+
+          # Write wrangler OAuth config with fresh access token
+          mkdir -p ~/.config/.wrangler/config
+          cat > ~/.config/.wrangler/config/default.toml <<EOF
+          oauth_token = "$ACCESS_TOKEN"
+          EOF
+
+          # Deploy to Cloudflare Pages
+          npx wrangler@latest pages deploy . --project-name=horlogerie-francaise --branch=main --commit-dirty=true
+
+          # Rotate the refresh token in GitHub secrets for next run
+          echo "$NEW_REFRESH" | gh secret set WRANGLER_REFRESH_TOKEN --repo donscalos/horlogerie-francaise
