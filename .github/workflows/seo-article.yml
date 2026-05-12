@@ -234,9 +234,12 @@ jobs:
           ACCESS_TOKEN=$(echo "$RESPONSE" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['access_token'])")
           NEW_REFRESH=$(echo "$RESPONSE" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['refresh_token'])")
 
-          # Write wrangler OAuth config with fresh access token
+          # Write full wrangler config (access + refresh + expiry 1h from now)
+          EXPIRY=$(date -u -d '+1 hour' '+%Y-%m-%dT%H:%M:%S.000Z' 2>/dev/null || date -u -v+1H '+%Y-%m-%dT%H:%M:%S.000Z')
           mkdir -p ~/.config/.wrangler/config
-          printf 'oauth_token = "%s"\n' "$ACCESS_TOKEN" > ~/.config/.wrangler/config/default.toml
+          CFGPATH="$HOME/.config/.wrangler/config/default.toml"
+          printf 'oauth_token = "%s"\nexpiration_time = "%s"\nrefresh_token = "%s"\nscopes = ["account:read","user:read","workers:write","pages:write","zone:read","offline_access"]\n' "$ACCESS_TOKEN" "$EXPIRY" "$NEW_REFRESH" > "$CFGPATH"
+          echo "Wrangler config written to $CFGPATH"
 
           # Deploy to Cloudflare Pages
           npx wrangler@latest pages deploy . --project-name=horlogerie-francaise --branch=main --commit-dirty=true
