@@ -218,31 +218,4 @@ jobs:
           git add "$SLUG/" blog/index.html sitemap.xml
           git commit -m "SEO: add article $SLUG + update blog index + sitemap"
           git push
-
-      - name: Deploy to Cloudflare Pages
-        if: steps.keyword.outputs.slug != ''
-        env:
-          WRANGLER_REFRESH_TOKEN: ${{ secrets.WRANGLER_REFRESH_TOKEN }}
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          # Exchange refresh token for fresh access token
-          RESPONSE=$(curl -s -X POST "https://dash.cloudflare.com/oauth2/token" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d "grant_type=refresh_token&refresh_token=$WRANGLER_REFRESH_TOKEN&client_id=54d11594-84e4-41aa-b438-e81b8fa78ee7")
-
-          ACCESS_TOKEN=$(echo "$RESPONSE" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['access_token'])")
-          NEW_REFRESH=$(echo "$RESPONSE" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['refresh_token'])")
-
-          # Write full wrangler config (access + refresh + expiry 1h from now)
-          EXPIRY=$(date -u -d '+1 hour' '+%Y-%m-%dT%H:%M:%S.000Z' 2>/dev/null || date -u -v+1H '+%Y-%m-%dT%H:%M:%S.000Z')
-          mkdir -p ~/.config/.wrangler/config
-          CFGPATH="$HOME/.config/.wrangler/config/default.toml"
-          printf 'oauth_token = "%s"\nexpiration_time = "%s"\nrefresh_token = "%s"\nscopes = ["account:read","user:read","workers:write","pages:write","zone:read","offline_access"]\n' "$ACCESS_TOKEN" "$EXPIRY" "$NEW_REFRESH" > "$CFGPATH"
-          echo "Wrangler config written to $CFGPATH"
-
-          # Deploy to Cloudflare Pages
-          npx wrangler@latest pages deploy . --project-name=horlogerie-francaise --branch=main --commit-dirty=true
-
-          # Rotate the refresh token in GitHub secrets for next run
-          echo "$NEW_REFRESH" | gh secret set WRANGLER_REFRESH_TOKEN --repo donscalos/horlogerie-francaise
+          echo "Pushed to main — Cloudflare Pages Git integration will auto-deploy."
