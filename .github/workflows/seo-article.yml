@@ -179,31 +179,30 @@ jobs:
           today = date.today().isoformat()
           urls = ''
 
+          def url_block(loc, lastmod, freq, priority):
+            return (
+              '  <url>\n'
+              f'    <loc>{loc}</loc>\n'
+              f'    <lastmod>{lastmod}</lastmod>\n'
+              f'    <changefreq>{freq}</changefreq>\n'
+              f'    <priority>{priority}</priority>\n'
+              '  </url>\n'
+            )
+
           for loc, priority, freq in STATIC_PAGES:
-            urls += f'''  <url>
-    <loc>{loc}</loc>
-    <lastmod>{today}</lastmod>
-    <changefreq>{freq}</changefreq>
-    <priority>{priority}</priority>
-  </url>\n'''
+            urls += url_block(loc, today, freq, priority)
 
           for d in sorted(pathlib.Path('.').iterdir()):
             if d.is_dir() and d.name not in SKIP and not d.name.startswith('.'):
               html_file = d / 'index.html'
               if html_file.exists():
                 mtime = date.fromtimestamp(html_file.stat().st_mtime).isoformat()
-                urls += f'''  <url>
-    <loc>https://horlogeriefrancaise.fr/{d.name}/</loc>
-    <lastmod>{mtime}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>\n'''
+                loc = f'https://horlogeriefrancaise.fr/{d.name}/'
+                urls += url_block(loc, mtime, 'monthly', '0.7')
 
-          sitemap = f'''<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-{urls}
-</urlset>'''
+          header = '<?xml version="1.0" encoding="UTF-8"?>\n'
+          header += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n\n'
+          sitemap = header + urls + '</urlset>'
 
           pathlib.Path('sitemap.xml').write_text(sitemap, encoding='utf-8')
           print(f"Sitemap regenerated with {urls.count('<url>')} URLs")
@@ -237,9 +236,7 @@ jobs:
 
           # Write wrangler OAuth config with fresh access token
           mkdir -p ~/.config/.wrangler/config
-          cat > ~/.config/.wrangler/config/default.toml <<EOF
-          oauth_token = "$ACCESS_TOKEN"
-          EOF
+          printf 'oauth_token = "%s"\n' "$ACCESS_TOKEN" > ~/.config/.wrangler/config/default.toml
 
           # Deploy to Cloudflare Pages
           npx wrangler@latest pages deploy . --project-name=horlogerie-francaise --branch=main --commit-dirty=true
