@@ -329,6 +329,20 @@ ol.steps > li::before {
 .tag { display: inline-block; font-size: .72rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 3px 10px; border-radius: 100px; margin-bottom: 8px; }
 .tag-free { background: rgba(31,122,71,.1); color: var(--success); }
 .tag-premium { background: rgba(176,141,87,.14); color: var(--gold-dk); }
+.tag-new { background: rgba(56,71,92,.12); color: #38475c; }
+
+/* ── Carte marque : trait distinctif mis en avant ── */
+.card-signe {
+  display: block;
+  margin-top: auto;
+  padding-top: 12px;
+  font-size: .85rem; line-height: 1.5;
+  color: var(--text);
+  border-top: 1px solid var(--border);
+}
+.card-signe strong { color: var(--gold-dk); font-weight: 600; }
+.card-brand-photo .card-body .card-signe { margin-top: auto; }
+.card-brand-photo .card-body p + .card-signe { margin-top: 12px; }
 
 /* ── Footer ── */
 footer { background: #161009; color: rgba(255,255,255,.62); text-align: center; padding: 32px 24px; font-size: .85rem; border-top: 1px solid rgba(176,141,87,.18); }
