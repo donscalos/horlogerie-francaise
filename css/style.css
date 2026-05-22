@@ -216,3 +216,46 @@ footer a:hover { color: var(--gold); }
   .stats-inner { gap: 20px; }
   .card-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Hero vidéo ── */
+.hero-video { position: relative; overflow: hidden; }
+.hero-bg-video {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%; min-height: 100%;
+  width: auto; height: auto;
+  object-fit: cover; z-index: 0;
+  opacity: 0.35;
+}
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(10,8,4,0.55) 0%, rgba(10,8,4,0.7) 100%);
+  z-index: 1;
+}
+.hero-video .hero-grid { display: none; }
+.hero-video .hero-inner { position: relative; z-index: 2; }
+
+/* ── Filtres catégories blog ── */
+.cat-filter {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  margin: 1.5rem 0 2rem;
+}
+.cat-btn {
+  padding: 0.45rem 1.1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 2rem;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cat-btn:hover { border-color: var(--gold); color: var(--gold); }
+.cat-btn.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #000;
+  font-weight: 600;
+}
+.card-link.hidden { display: none; }
