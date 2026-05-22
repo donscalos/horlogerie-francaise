@@ -303,6 +303,87 @@ footer a:hover { color: var(--gold); }
 }
 .card-link.hidden { display: none; }
 
+/* ── Hero avec image de fond (articles) ── */
+.hero-photo {
+  position: relative; overflow: hidden;
+  background-color: #161009;
+  background-size: cover;
+  background-position: center;
+}
+.hero-photo .hero-grid { display: none; }
+.hero-photo::before {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(to bottom, rgba(12,9,4,0.62) 0%, rgba(12,9,4,0.82) 100%);
+}
+.hero-photo .hero-inner { position: relative; z-index: 2; }
+
+/* ── Signature auteur (sous le H1 d'article) ── */
+.byline {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; flex-wrap: wrap;
+  font-size: .9rem; color: rgba(255,255,255,.72);
+  margin: 4px 0 4px;
+}
+.byline .byline-author { color: var(--gold); font-weight: 600; }
+.byline .byline-sep { color: rgba(255,255,255,.34); }
+.byline a { color: rgba(176,141,87,.95); }
+.byline a:hover { color: var(--gold); }
+
+/* ── Figure (illustration dans le corps d'article) ── */
+figure.article-figure {
+  margin: 32px 0;
+  max-width: none;
+}
+figure.article-figure img {
+  width: 100%; height: auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+}
+figure.article-figure figcaption {
+  margin-top: 10px;
+  font-size: .85rem; font-style: italic;
+  color: var(--text-light); text-align: center;
+}
+
+/* ── Bloc "À lire aussi" ── */
+.read-also {
+  margin: 56px 0 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.read-also h2 { margin-top: 24px; }
+
+/* ── Page À propos ── */
+.about-author {
+  display: flex; gap: 24px; align-items: flex-start;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin: 28px 0;
+}
+.about-author .author-avatar {
+  flex-shrink: 0;
+  width: 84px; height: 84px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head); font-size: 1.9rem; font-weight: 600;
+}
+.about-author .author-body h3 { margin-top: 0; }
+.about-author .author-body p:last-child { margin-bottom: 0; }
+.about-author .author-role {
+  display: block; font-size: .8rem; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--gold-dk); margin-bottom: 6px;
+}
+@media (max-width: 560px) {
+  .about-author { flex-direction: column; align-items: center; text-align: center; }
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .hero { padding: 60px 20px 44px; }
