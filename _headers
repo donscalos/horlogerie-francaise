@@ -1,5 +1,2 @@
-# Cloudflare Pages — en-têtes personnalises
-# Le CSS est revalide a chaque chargement : un deploiement est visible
-# immediatement, sans attendre l'expiration du cache navigateur.
 /css/*
   Cache-Control: public, max-age=0, must-revalidate
