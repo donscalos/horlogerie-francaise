@@ -45,34 +45,77 @@ jobs:
           SLUG: ${{ steps.keyword.outputs.slug }}
         run: |
           python3 - <<'PYEOF'
-          import os, json, re, pathlib, urllib.request
+          import os, json, re, pathlib, urllib.request, hashlib, random
+          from datetime import date
 
           slug = os.environ["SLUG"]
           title_raw = slug.replace("-", " ").title()
 
-          prompt = f"""Tu es un expert SEO français spécialisé en horlogerie. Génère une page HTML complète et autonome pour le mot-clé "{title_raw}" sur le site horlogeriefrancaise.fr.
+          # --- Images Pexels (pool partage avec le reste du site) ---
+          PEXELS_POOL = [
+              '190819', '125779', '9841564', '3658445', '190820',
+              '1697214', '9841563', '3945671', '190818', '3829906',
+              '2783873', '190817', '1697213', '3830188', '190816',
+              '2956417', '3829907', '1697215', '9841565', '2783874',
+              '190815', '3945672', '2956418', '3830189', '190814',
+          ]
 
-          CONTRAINTES STRICTES :
-          - Retourne UNIQUEMENT le HTML complet, rien d'autre, pas de markdown, pas de balises code
-          - Commence par <!DOCTYPE html> et termine par </html>
-          - Inclure ce snippet Google Analytics dans le <head> : <!-- Google tag (gtag.js) --> <script async src="https://www.googletagmanager.com/gtag/js?id=G-4F6EJ22KMQ"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());gtag('config','G-4F6EJ22KMQ');</script>
-          - Utilise exactement ce CSS externe : <link rel="stylesheet" href="../css/style.css">
-          - Structure de navigation identique aux autres pages du site :
-            <header><div class="header-inner"><a href="/" class="logo">Horlogerie Française</a><nav><a href="/">Accueil</a><a href="/marques/">Marques</a><a href="/entretien/">Entretien</a><a href="/histoire/">Histoire</a><a href="/blog/">Blog</a></nav></div></header>
-          - Footer identique : © 2025 horlogeriefrancaise.fr — Guide indépendant, non affilié aux marques mentionnées
-          - Lang="fr", canonical="https://horlogeriefrancaise.fr/{slug}/"
-          - Title SEO optimisé (60 chars max), meta description (155 chars max)
-          - Contenu : minimum 800 mots, H2/H3, listes, tableaux si pertinent
-          - Classes CSS disponibles : .hero, .hero-inner, .badge, .btn.btn-primary, .btn.btn-outline, .card-grid, .card, .highlight, .list-check, .steps, .faq, .faq-item, .compare-table, .affiliate-box, .toc, .breadcrumb, .section-eyebrow, .decorated, .ad-slot, .stats-strip
-          - Intègre 2-3 liens internes vers /marques/, /entretien/, /histoire/
-          - Ajoute schema JSON-LD Article ou FAQPage selon le contenu
-          - Insère 2 blocs <div class="ad-slot"><!-- AdSense --></div> (milieu + bas)
-          - Ton : expert passionné mais accessible, en français courant
-          - Le contenu doit être utile, original et répondre à l'intention de recherche du mot-clé
-          - Thématique : horlogerie française (marques, montres, entretien, histoire, conseils d'achat)
+          def pick_imgs(s, n=3):
+              h = int(hashlib.md5(s.encode()).hexdigest(), 16)
+              idxs = []
+              i = 0
+              while len(idxs) < n:
+                  idx = (h + i * 7) % len(PEXELS_POOL)
+                  if idx not in idxs:
+                      idxs.append(idx)
+                  i += 1
+              return [PEXELS_POOL[k] for k in idxs]
 
-          Mot-clé principal : {title_raw}
-          URL de la page : https://horlogeriefrancaise.fr/{slug}/
+          def pexels(pid, w):
+              return ("https://images.pexels.com/photos/" + pid
+                      + "/pexels-photo-" + pid
+                      + ".jpeg?auto=compress&cs=tinysrgb&w=" + str(w))
+
+          _imgs = pick_imgs(slug)
+          hero_img = pexels(_imgs[0], 1600)
+          fig1_img = pexels(_imgs[1], 1200)
+          fig2_img = pexels(_imgs[2], 1200)
+
+          MOIS = ['janvier', 'fevrier', 'mars', 'avril', 'mai', 'juin', 'juillet',
+                  'aout', 'septembre', 'octobre', 'novembre', 'decembre']
+          _t = date.today()
+          date_fr = str(_t.day) + " " + MOIS[_t.month - 1] + " " + str(_t.year)
+          date_iso = _t.isoformat()
+
+          prompt = f"""Tu es un redacteur expert en horlogerie francaise. Genere une page HTML complete et autonome pour le mot-cle "{title_raw}" sur le site horlogeriefrancaise.fr.
+
+          REGLES STRICTES :
+          - Retourne UNIQUEMENT le HTML, rien d'autre : commence par <!DOCTYPE html>, termine par </html>. Pas de markdown, pas de balises de code.
+          - <html lang="fr">. Title SEO (60 caracteres max), meta description (155 max). Balise canonical : https://horlogeriefrancaise.fr/{slug}/
+          - Dans le <head>, inclure DANS CET ORDRE :
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+            <link rel="stylesheet" href="../css/style.css">
+            le tag Google Analytics : <!-- Google tag (gtag.js) --> <script async src="https://www.googletagmanager.com/gtag/js?id=G-4F6EJ22KMQ"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());gtag('config','G-4F6EJ22KMQ');</script>
+            un schema JSON-LD de type Article avec : headline, description, "datePublished":"{date_iso}", "dateModified":"{date_iso}", "author" valant OBLIGATOIREMENT {{"@type":"Person","name":"Julien Vasseur"}}, et "publisher" valant {{"@type":"Organization","name":"Horlogerie Francaise"}}.
+          - Header EXACT :
+            <header><div class="header-inner"><a href="/" class="logo">Horlogerie Francaise</a><nav><a href="/">Accueil</a><a href="/marques/">Marques</a><a href="/entretien/">Entretien</a><a href="/histoire/">Histoire</a><a href="/blog/">Blog</a><a href="/a-propos/">A propos</a></nav></div></header>
+          - Juste apres le header, un hero AVEC IMAGE, structure EXACTE (garde la chaine __HERO_IMG__ telle quelle, un script la remplacera) :
+            <div class="hero hero-photo" style="background-image:url('__HERO_IMG__')"><div class="hero-grid"></div><div class="hero-inner"><div class="badge">Guide</div><h1>LE TITRE H1</h1><div class="byline"><span>Par <span class="byline-author">Julien Vasseur</span></span><span class="byline-sep">&bull;</span><span>Mis a jour le {date_fr}</span></div><p>UNE PHRASE D'ACCROCHE</p></div></div>
+          - Ensuite un <main> ... </main>. Il commence par un fil d'Ariane : <div class="breadcrumb"><a href="/">Accueil</a><span class="sep">&rsaquo;</span><a href="/blog/">Blog</a><span class="sep">&rsaquo;</span> {title_raw}</div>
+          - Contenu de l'article : minimum 900 mots, structure en H2/H3, avec des listes a puces et au moins un tableau si pertinent. Ton passionne, precis et accessible. Contenu original et reellement utile.
+          - INSERE EXACTEMENT 2 images dans le corps, a des endroits naturels, sous cette forme (garde __FIG1__ et __FIG2__ tels quels) :
+            <figure class="article-figure"><img src="__FIG1__" alt="DESCRIPTION" width="1200" height="800" loading="lazy"><figcaption>LEGENDE</figcaption></figure>
+            puis, plus loin, la meme chose avec __FIG2__. Les legendes doivent rester ATMOSPHERIQUES et generales (ex. "L'horlogerie francaise, un savoir-faire de precision") et ne JAMAIS pretendre montrer un modele de montre precis.
+          - Integre 3 a 5 liens internes contextuels dans le texte, vers /marques/, /entretien/, /histoire/ et d'autres pages pertinentes du site.
+          - Footer EXACT :
+            <footer><p>&copy; 2026 horlogeriefrancaise.fr &mdash; Guide independant, non affilie aux marques mentionnees</p><p style="margin-top:8px"><a href="/blog/">Blog</a> &middot; <a href="/marques/">Marques</a> &middot; <a href="/entretien/">Entretien</a> &middot; <a href="/histoire/">Histoire</a></p></footer>
+          - Classes CSS disponibles : hero, hero-photo, hero-inner, badge, byline, byline-author, byline-sep, breadcrumb, sep, toc, decorated, section-eyebrow, highlight, list-check, steps, faq, faq-item, faq-q, faq-a, compare-table, card, card-grid, blog-grid, article-figure, btn, btn-primary, btn-outline.
+          - N'ajoute AUCUN bloc de publicite, AUCUN bloc d'affiliation, AUCUN bouton d'achat.
+          - N'ajoute PAS de bloc "A lire aussi" : un script l'ajoute automatiquement apres.
+
+          Mot-cle principal : {title_raw}
           """
 
           payload = json.dumps({
@@ -98,10 +141,43 @@ jobs:
           html = re.sub(r'^```\s*', '', html)
           html = re.sub(r'\s*```$', '', html)
 
+          # Garde anti-troncature : ne rien ecrire si le HTML est coupe
+          if not html.rstrip().lower().endswith("</html>"):
+              raise SystemExit("ERREUR : HTML tronque (" + str(len(html)) + " car.) pour " + slug + " - article non ecrit")
+
+          # Injection des vraies images Pexels
+          html = html.replace("__HERO_IMG__", hero_img)
+          html = html.replace("__FIG1__", fig1_img)
+          html = html.replace("__FIG2__", fig2_img)
+
+          # Bloc "A lire aussi" : 3 autres articles du site
+          SKIP = {'blog', 'css', 'marques', 'entretien', 'histoire', '_seo', '.github', 'a-propos'}
+          others = []
+          for d in sorted(pathlib.Path('.').iterdir()):
+              if d.is_dir() and d.name not in SKIP and not d.name.startswith('.') and d.name != slug:
+                  fp = d / 'index.html'
+                  if fp.exists():
+                      c = fp.read_text(encoding='utf-8')
+                      mt = re.search(r'<title>(.*?)</title>', c)
+                      md = re.search(r'<meta name="description" content="(.*?)"', c)
+                      t2 = mt.group(1).split('|')[0].strip() if mt else d.name.replace('-', ' ').title()
+                      d2 = md.group(1).strip() if md else ''
+                      others.append((d.name, t2, d2))
+          random.Random(slug).shuffle(others)
+          others = others[:3]
+          if others:
+              cards = ""
+              for s2, t2, d2 in others:
+                  cards += ('      <a href="/' + s2 + '/" class="card card-link">'
+                            '<div class="card-body"><h3>' + t2 + '</h3><p>' + d2 + '</p></div></a>\n')
+              block = ('  <section class="read-also">\n    <h2>A lire aussi</h2>\n'
+                       '    <div class="blog-grid">\n' + cards + '    </div>\n  </section>\n')
+              html = html.replace("</main>", block + "</main>", 1)
+
           out = pathlib.Path(slug)
           out.mkdir(exist_ok=True)
           (out / "index.html").write_text(html, encoding="utf-8")
-          print(f"Article written to {slug}/index.html ({len(html)} chars)")
+          print("Article " + slug + "/index.html ecrit (" + str(len(html)) + " caracteres)")
           PYEOF
 
       - name: Regenerate blog index
@@ -110,7 +186,7 @@ jobs:
           python3 - <<'PYEOF'
           import pathlib, re, hashlib
 
-          SKIP = {'blog', 'css', 'marques', 'entretien', 'histoire', '_seo', '.github'}
+          SKIP = {'blog', 'css', 'marques', 'entretien', 'histoire', '_seo', '.github', 'a-propos'}
 
           PEXELS_POOL = [
             '190819', '125779', '9841564', '3658445', '190820',
@@ -167,13 +243,14 @@ jobs:
           import pathlib, re
           from datetime import date
 
-          SKIP = {'blog', 'css', 'marques', 'entretien', 'histoire', '_seo', '.github'}
+          SKIP = {'blog', 'css', 'marques', 'entretien', 'histoire', '_seo', '.github', 'a-propos'}
           STATIC_PAGES = [
             ('https://horlogeriefrancaise.fr/', '1.0', 'weekly'),
             ('https://horlogeriefrancaise.fr/marques/', '0.9', 'monthly'),
             ('https://horlogeriefrancaise.fr/entretien/', '0.9', 'monthly'),
             ('https://horlogeriefrancaise.fr/histoire/', '0.8', 'monthly'),
             ('https://horlogeriefrancaise.fr/blog/', '0.8', 'weekly'),
+            ('https://horlogeriefrancaise.fr/a-propos/', '0.5', 'monthly'),
           ]
 
           today = date.today().isoformat()
@@ -218,4 +295,4 @@ jobs:
           git add "$SLUG/" blog/index.html sitemap.xml
           git commit -m "SEO: add article $SLUG + update blog index + sitemap"
           git push
-          echo "Pushed to main — Cloudflare Pages Git integration will auto-deploy."
+          echo "Pushed to main - le workflow Deploy prend le relais."
