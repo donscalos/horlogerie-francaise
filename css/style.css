@@ -79,6 +79,67 @@ nav a {
 }
 nav a:hover, nav a.active { color: var(--gold); background: rgba(176,141,87,.14); }
 
+/* ── Menu hamburger (CSS pur, "checkbox hack") ── */
+/* Sur desktop : la case à cocher et l'icône sont masquées, le <nav> reste en ligne. */
+.nav-toggle { display: none; }
+.nav-burger { display: none; }
+
+@media (max-width: 800px) {
+  /* L'icône hamburger : 3 barres soignées, alignées à droite du header */
+  .nav-burger {
+    display: flex; flex-direction: column; justify-content: center;
+    gap: 5px;
+    width: 44px; height: 44px;
+    padding: 10px;
+    margin-left: auto;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition);
+  }
+  .nav-burger:hover { background: rgba(176,141,87,.14); }
+  .nav-burger span {
+    display: block; height: 2px; width: 100%;
+    background: #e8d9bf;
+    border-radius: 2px;
+    transition: transform var(--transition), opacity var(--transition);
+  }
+
+  /* Le header passe sur une ligne unique : logo + burger */
+  .header-inner { flex-wrap: nowrap; }
+
+  /* Le menu est masqué par défaut sur mobile */
+  header nav {
+    display: flex; flex-direction: column;
+    gap: 0;
+    position: absolute; left: 0; right: 0; top: 100%;
+    background: rgba(20,15,7,.99);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(176,141,87,.25);
+    box-shadow: var(--shadow-lg);
+    max-height: 0; overflow: hidden;
+    transition: max-height var(--transition);
+  }
+
+  /* Case cochée → le panneau vertical se déroule sous le header */
+  .nav-toggle:checked ~ nav { max-height: 80vh; }
+
+  /* Liens empilés, cibles tactiles ≥ 44px */
+  header nav a {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 24px;
+    border-radius: 0;
+    border-bottom: 1px solid rgba(176,141,87,.14);
+  }
+  header nav a:last-child { border-bottom: none; }
+  header nav a:hover, header nav a.active { background: rgba(176,141,87,.18); }
+
+  /* Animation de l'icône en croix quand le menu est ouvert */
+  .nav-toggle:checked ~ .nav-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-toggle:checked ~ .nav-burger span:nth-child(2) { opacity: 0; }
+  .nav-toggle:checked ~ .nav-burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+}
+
 /* ── Hero ── */
 .hero {
   position: relative; overflow: hidden;
@@ -154,6 +215,24 @@ nav a:hover, nav a.active { color: var(--gold); background: rgba(176,141,87,.14)
 /* Cartes marques de la home : pas d'icône, filet doré en bordure haute */
 .card-brand {
   border-top: 3px solid var(--gold);
+}
+
+/* Variante carte marque avec vignette image en haut */
+.card-brand.card-brand-photo {
+  padding: 0; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.card-brand-photo .card-thumb img {
+  border-radius: 0;
+}
+.card-brand-photo .card-body {
+  padding: 20px 24px 24px;
+  display: flex; flex-direction: column;
+  flex: 1;
+}
+.card-brand-photo .card-body .btn {
+  margin-top: auto;
+  align-self: flex-start;
 }
 
 /* ── Typography ── */
