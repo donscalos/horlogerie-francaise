@@ -3,6 +3,8 @@ name: Generate SEO Article
 on:
   schedule:
     - cron: '0 8 * * 1'  # Monday 8am UTC
+    - cron: '0 8 * * 3'  # Wednesday 8am UTC
+    - cron: '0 8 * * 5'  # Friday 8am UTC
   workflow_dispatch:      # manual trigger
 
 jobs:
@@ -295,3 +297,14 @@ jobs:
           git commit -m "SEO: add article $SLUG + update blog index + sitemap"
           git push
           echo "Pushed to main - le workflow Deploy prend le relais."
+
+      - name: Ping IndexNow (Bing, Yandex, Seznam)
+        if: steps.keyword.outputs.slug != ''
+        env:
+          SLUG: ${{ steps.keyword.outputs.slug }}
+        run: |
+          sleep 30
+          curl -s -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d "{\"host\":\"horlogeriefrancaise.fr\",\"key\":\"1f12e60491a14714a626a862c3184dde\",\"keyLocation\":\"https://horlogeriefrancaise.fr/1f12e60491a14714a626a862c3184dde.txt\",\"urlList\":[\"https://horlogeriefrancaise.fr/$SLUG/\",\"https://horlogeriefrancaise.fr/blog/\",\"https://horlogeriefrancaise.fr/sitemap.xml\"]}" \
+            -w "\nIndexNow HTTP: %{http_code}\n" || true
