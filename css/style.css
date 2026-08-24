@@ -497,3 +497,18 @@ figure.article-figure figcaption {
   }
   .table-wrap .compare-table { display: table; }
 }
+
+/* Maillage de cluster : renvois vers les pages soeurs d'un meme dossier */
+.cluster-links {
+  margin: 3rem 0 1rem;
+  padding: 1.75rem 2rem;
+  background: #faf8f4;
+  border: 1px solid #e6e0d4;
+  border-left: 3px solid #b8985a;
+  border-radius: 4px;
+}
+.cluster-links h2 { margin: 0 0 .5rem; font-size: 1.2rem; }
+.cluster-links > p { color: #6b6558; font-size: .95rem; margin-bottom: 1rem; }
+.cluster-links ul { margin: 0; padding-left: 1.1rem; }
+.cluster-links li { margin-bottom: .55rem; color: #6b6558; font-size: .96rem; }
+.cluster-links li a { font-weight: 600; }
