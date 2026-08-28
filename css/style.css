@@ -528,3 +528,9 @@ figure.article-figure figcaption {
 .author-box h3 { margin: 0 0 4px; font-size: 1rem; }
 .author-box p { margin: 0 0 6px; font-size: .93rem; color: var(--text-muted); }
 .author-box p:last-child { margin-bottom: 0; }
+
+/* Le sommaire est un <nav> : sans ces regles il herite de la navigation
+   d en-tete (display:flex, soulignement anime, et display:none en mobile,
+   ce qui le faisait disparaitre entierement sur telephone). */
+nav.toc { display: block !important; }
+nav.toc a::after { display: none; }
