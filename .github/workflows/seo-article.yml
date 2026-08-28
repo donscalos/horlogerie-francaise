@@ -132,16 +132,16 @@ jobs:
           - SOMMAIRE OBLIGATOIRE, juste apres le fil d'Ariane. Chaque H2 du corps doit porter un id
             et etre repris ici dans le meme ordre :
               <nav class="toc" aria-label="Sommaire"><div class="toc-title">Sommaire</div><ol><li><a href="#id-du-h2">Intitule du H2</a></li>...</ol></nav>
-            Les H2 s ecrivent alors <h2 id="id-du-h2">Intitule du H2</h2>. Ids en minuscules, sans accent, avec des tirets.
+            Les H2 s'ecrivent alors <h2 id="id-du-h2">Intitule du H2</h2>. Ids en minuscules, sans accent, avec des tirets.
           
           - FAQ OBLIGATOIRE en fin d'article, 4 ou 5 questions que se pose reellement quelqu'un qui
             cherche ce mot-cle. Formuler la question comme elle serait tapee. Reponse de 2 a 4 phrases,
             autoportante : elle doit se comprendre seule, sortie de son contexte. Structure EXACTE :
-              <h2 id="faq">Questions frequentes</h2>
+              <h2 id="faq">Questions fréquentes</h2>
           <div class="faq"><div class="faq-item"><div class="faq-q">LA QUESTION</div><div class="faq-a">LA REPONSE</div></div>...</div>
           
           - ENCADRE AUTEUR OBLIGATOIRE, tout a la fin du <main>, apres la FAQ :
-              <div class="author-box"><div class="author-ini">JV</div><div><h3>Julien Vasseur</h3><p>Passionne d'horlogerie francaise. Il suit les maisons de Besancon, du Jura et d'ailleurs, et ecrit sur ce qui distingue vraiment une montre francaise d'une montre assemblee en France.</p><p><a href="/a-propos/">En savoir plus</a></p></div></div>
+              <div class="author-box"><div class="author-ini">JV</div><div><h3>Julien Vasseur</h3><p>Passionné d'horlogerie française. Il suit les maisons de Besançon, du Jura et d'ailleurs, et écrit sur ce qui distingue vraiment une montre française d'une montre assemblée en France.</p><p><a href="/a-propos/">En savoir plus</a></p></div></div>
           
           - TROIS blocs JSON-LD dans le <head>, pas un seul :
             1. Article (comme decrit plus haut)
@@ -159,6 +159,11 @@ jobs:
           - N'ajoute AUCUN bloc de publicite, AUCUN bloc d'affiliation, AUCUN bouton d'achat.
           - N'ajoute PAS de bloc "A lire aussi" : un script l'ajoute automatiquement apres.
 
+          
+          - ORTHOGRAPHE : tout le texte publie doit etre en francais correctement ACCENTUE
+            (e accent aigu, e accent grave, cedille, circonflexe). Les consignes ci-dessus sont
+            volontairement ecrites sans accents pour des raisons techniques : ne recopie PAS ce style.
+            Cela vaut aussi pour les questions et reponses de la FAQ, souvent oubliees.
           Mot-cle principal : {title_raw}
           """
 
