@@ -512,3 +512,19 @@ figure.article-figure figcaption {
 .cluster-links ul { margin: 0; padding-left: 1.1rem; }
 .cluster-links li { margin-bottom: .55rem; color: #6b6558; font-size: .96rem; }
 .cluster-links li a { font-weight: 600; }
+
+/* ============================================================
+   SIGNATURE DE FIN D ARTICLE
+   .about-author ne sert que la page a propos ; les articles
+   n avaient aucun encadre auteur.
+   ============================================================ */
+.author-box { display: flex; gap: 18px; align-items: flex-start;
+  background: var(--bg-subtle); border: 1px solid var(--border);
+  border-left: 3px solid var(--gold); border-radius: var(--radius-md);
+  padding: 22px 26px; margin: 38px 0; }
+.author-box .author-ini { flex: none; width: 48px; height: 48px; border-radius: 50%;
+  background: var(--gold); color: #fff; font-family: var(--font-head);
+  font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.author-box h3 { margin: 0 0 4px; font-size: 1rem; }
+.author-box p { margin: 0 0 6px; font-size: .93rem; color: var(--text-muted); }
+.author-box p:last-child { margin-bottom: 0; }

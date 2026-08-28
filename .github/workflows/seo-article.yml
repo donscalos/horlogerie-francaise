@@ -88,6 +88,26 @@ jobs:
           date_fr = str(_t.day) + " " + MOIS[_t.month - 1] + " " + str(_t.year)
           date_iso = _t.isoformat()
 
+          # --- Maillage : articles REELLEMENT presents dans le depot ---
+          SKIP_LINK = {'blog', 'css', '_seo', '.github', 'a-propos'}
+          _existing = []
+          for _d in sorted(pathlib.Path('.').iterdir()):
+              if not _d.is_dir() or _d.name.startswith('.'):
+                  continue
+              if _d.name in SKIP_LINK or _d.name == slug:
+                  continue
+              _h = _d / 'index.html'
+              if not _h.exists():
+                  continue
+              _m = re.search(r'<title>(.*?)</title>', _h.read_text(encoding='utf-8'))
+              _t = _m.group(1).split('|')[0].strip() if _m else _d.name.replace('-', ' ')
+              _existing.append('/' + _d.name + '/ = ' + _t)
+          # ordre deterministe mais different pour chaque article
+          _existing.sort(key=lambda s: hashlib.md5((slug + s).encode()).hexdigest())
+          internal_links = chr(10).join('  ' + x for x in _existing[:12])
+          if not internal_links:
+              internal_links = '  (aucun autre article publie pour le moment)'
+          
           prompt = f"""Tu es un redacteur expert en horlogerie francaise. Genere une page HTML complete et autonome pour le mot-cle "{title_raw}" sur le site horlogeriefrancaise.fr.
 
           REGLES STRICTES :
@@ -105,11 +125,34 @@ jobs:
           - Juste apres le header, un hero AVEC IMAGE, structure EXACTE (garde la chaine __HERO_IMG__ telle quelle, un script la remplacera) :
             <div class="hero hero-photo" style="background-image:url('__HERO_IMG__')"><div class="hero-grid"></div><div class="hero-inner"><div class="badge">Guide</div><h1>LE TITRE H1</h1><div class="byline"><span>Par <span class="byline-author">Julien Vasseur</span></span><span class="byline-sep">&bull;</span><span>Mis a jour le {date_fr}</span></div><p>UNE PHRASE D'ACCROCHE</p></div></div>
           - Ensuite un <main> ... </main>. Il commence par un fil d'Ariane : <div class="breadcrumb"><a href="/">Accueil</a><span class="sep">&rsaquo;</span><a href="/blog/">Blog</a><span class="sep">&rsaquo;</span> {title_raw}</div>
-          - Contenu de l'article : minimum 900 mots, structure en H2/H3, avec des listes a puces et au moins un tableau si pertinent. Ton passionne, precis et accessible. Contenu original et reellement utile.
+          - Contenu de l'article : minimum 1100 mots, structure en H2/H3, avec des listes a puces et au moins un tableau si pertinent. Ton passionne, precis et accessible. Contenu original et reellement utile.
           - INSERE EXACTEMENT 2 images dans le corps, a des endroits naturels, sous cette forme (garde __FIG1__ et __FIG2__ tels quels) :
             <figure class="article-figure"><img src="__FIG1__" alt="DESCRIPTION" width="1200" height="800" loading="lazy"><figcaption>LEGENDE</figcaption></figure>
             puis, plus loin, la meme chose avec __FIG2__. Les legendes doivent rester ATMOSPHERIQUES et generales (ex. "L'horlogerie francaise, un savoir-faire de precision") et ne JAMAIS pretendre montrer un modele de montre precis.
-          - Integre 3 a 5 liens internes contextuels dans le texte, vers /marques/, /entretien/, /histoire/ et d'autres pages pertinentes du site.
+          - SOMMAIRE OBLIGATOIRE, juste apres le fil d'Ariane. Chaque H2 du corps doit porter un id
+            et etre repris ici dans le meme ordre :
+              <nav class="toc" aria-label="Sommaire"><div class="toc-title">Sommaire</div><ol><li><a href="#id-du-h2">Intitule du H2</a></li>...</ol></nav>
+            Les H2 s ecrivent alors <h2 id="id-du-h2">Intitule du H2</h2>. Ids en minuscules, sans accent, avec des tirets.
+          
+          - FAQ OBLIGATOIRE en fin d'article, 4 ou 5 questions que se pose reellement quelqu'un qui
+            cherche ce mot-cle. Formuler la question comme elle serait tapee. Reponse de 2 a 4 phrases,
+            autoportante : elle doit se comprendre seule, sortie de son contexte. Structure EXACTE :
+              <h2 id="faq">Questions frequentes</h2>
+          <div class="faq"><div class="faq-item"><div class="faq-q">LA QUESTION</div><div class="faq-a">LA REPONSE</div></div>...</div>
+          
+          - ENCADRE AUTEUR OBLIGATOIRE, tout a la fin du <main>, apres la FAQ :
+              <div class="author-box"><div class="author-ini">JV</div><div><h3>Julien Vasseur</h3><p>Passionne d'horlogerie francaise. Il suit les maisons de Besancon, du Jura et d'ailleurs, et ecrit sur ce qui distingue vraiment une montre francaise d'une montre assemblee en France.</p><p><a href="/a-propos/">En savoir plus</a></p></div></div>
+          
+          - TROIS blocs JSON-LD dans le <head>, pas un seul :
+            1. Article (comme decrit plus haut)
+            2. BreadcrumbList reprenant exactement le fil d'Ariane : {{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{{"@type":"ListItem","position":1,"name":"Accueil","item":"https://horlogeriefrancaise.fr/"}},{{"@type":"ListItem","position":2,"name":"Blog","item":"https://horlogeriefrancaise.fr/blog/"}},{{"@type":"ListItem","position":3,"name":"TITRE DE LA PAGE","item":"https://horlogeriefrancaise.fr/{slug}/"}}]}}
+            3. FAQPage reprenant MOT POUR MOT les questions et reponses de la FAQ visible : {{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{{"@type":"Question","name":"LA QUESTION","acceptedAnswer":{{"@type":"Answer","text":"LA REPONSE"}}}}]}}
+            Le FAQPage et la FAQ visible doivent etre identiques : Google penalise la divergence.
+          
+          - LIENS INTERNES : place 4 a 6 liens contextuels DANS LE TEXTE, en ancre descriptive
+            (jamais "cliquez ici"). Choisis-les dans cette liste d'articles qui existent vraiment.
+            N'invente aucune autre URL d'article, elle serait morte :
+          {internal_links}
           - Footer EXACT :
             <footer><p>&copy; 2026 horlogeriefrancaise.fr &mdash; Guide independant, non affilie aux marques mentionnees</p><p style="margin-top:8px"><a href="/blog/">Blog</a> &middot; <a href="/marques/">Marques</a> &middot; <a href="/entretien/">Entretien</a> &middot; <a href="/histoire/">Histoire</a></p></footer>
           - Classes CSS disponibles : hero, hero-photo, hero-inner, badge, byline, byline-author, byline-sep, breadcrumb, sep, toc, decorated, section-eyebrow, highlight, list-check, steps, faq, faq-item, faq-q, faq-a, compare-table, card, card-grid, blog-grid, article-figure, btn, btn-primary, btn-outline.
@@ -121,7 +164,7 @@ jobs:
 
           payload = json.dumps({
             "model": "claude-haiku-4-5-20251001",
-            "max_tokens": 8000,
+            "max_tokens": 12000,
             "messages": [{"role": "user", "content": prompt}]
           }).encode()
 
