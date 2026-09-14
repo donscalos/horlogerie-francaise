@@ -164,6 +164,9 @@ jobs:
             (e accent aigu, e accent grave, cedille, circonflexe). Les consignes ci-dessus sont
             volontairement ecrites sans accents pour des raisons techniques : ne recopie PAS ce style.
             Cela vaut aussi pour les questions et reponses de la FAQ, souvent oubliees.
+          - PONCTUATION : n'utilise JAMAIS de tiret cadratin ni de tiret demi-cadratin,
+            ni dans le titre ni dans le texte. Remplace-les par une virgule, un point,
+            deux points ou une parenthese selon le sens. Pas d'emoji non plus.
           Mot-cle principal : {title_raw}
           """
 
