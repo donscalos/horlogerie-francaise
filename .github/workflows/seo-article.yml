@@ -154,7 +154,7 @@ jobs:
             N'invente aucune autre URL d'article, elle serait morte :
           {internal_links}
           - Footer EXACT :
-            <footer><p>&copy; 2026 horlogeriefrancaise.fr &mdash; Guide independant, non affilie aux marques mentionnees</p><p style="margin-top:8px"><a href="/blog/">Blog</a> &middot; <a href="/marques/">Marques</a> &middot; <a href="/entretien/">Entretien</a> &middot; <a href="/histoire/">Histoire</a></p></footer>
+            <footer><p>&copy; 2026 horlogeriefrancaise.fr &middot; Guide independant, non affilie aux marques mentionnees</p><p style="margin-top:8px"><a href="/blog/">Blog</a> &middot; <a href="/marques/">Marques</a> &middot; <a href="/entretien/">Entretien</a> &middot; <a href="/histoire/">Histoire</a></p></footer>
           - Classes CSS disponibles : hero, hero-photo, hero-inner, badge, byline, byline-author, byline-sep, breadcrumb, sep, toc, decorated, section-eyebrow, highlight, list-check, steps, faq, faq-item, faq-q, faq-a, compare-table, card, card-grid, blog-grid, article-figure, btn, btn-primary, btn-outline.
           - N'ajoute AUCUN bloc de publicite, AUCUN bloc d'affiliation, AUCUN bouton d'achat.
           - N'ajoute PAS de bloc "A lire aussi" : un script l'ajoute automatiquement apres.
